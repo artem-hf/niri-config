@@ -1,0 +1,144 @@
+// niri
+
+layout {
+    gaps 3
+    center-focused-column "never"
+    background-color "#282828"
+
+    focus-ring {
+        width 2
+        active-color "#d79921"
+        inactive-color "#504945"
+        urgent-color "#fb4934"
+    }
+}
+
+input {
+    touchpad {
+        tap
+        dwt
+        dwtp
+        click-method "clickfinger"
+    }
+    trackpoint {
+        accel-profile "flat"
+        accel-speed 0.3
+    }
+}
+
+prefer-no-csd
+hotkey-overlay { skip-at-startup; }
+screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
+
+spawn-at-startup "~/.config/niri/polkit-agent.sh"
+spawn-at-startup "~/.config/niri/wallpaper.sh"
+spawn-at-startup "~/.config/niri/idle.sh"
+spawn-at-startup "qs" "-c" "niri-shell"
+spawn-at-startup "~/.config/niri/sunset.sh"
+spawn-at-startup "wl-paste" "--type" "text" "--watch" "cliphist" "store"
+spawn-at-startup "wl-paste" "--type" "image" "--watch" "cliphist" "store"
+spawn-at-startup "~/.local/bin/ai-assistant" "run"
+
+binds {
+    Mod+Shift+Return { spawn "alacritty"; }
+    Mod+P { spawn "fuzzel"; }
+    // comando de $PATH como root
+    Mod+Shift+P {
+        spawn "bash" "-c" "cmd=$(compgen -c | sort -u | fuzzel --dmenu --prompt='run > ') && [ -n \"$cmd\" ] && kdesu \"$cmd\"";
+    }
+    Mod+W { spawn "flatpak" "run" "app.zen_browser.zen"; }
+    Mod+E { spawn "dolphin"; }
+    Mod+V {
+        spawn "sh" "-c" "cliphist list | fuzzel --dmenu --prompt='clip > ' | cliphist decode | wl-copy";
+    }
+
+    Print      { screenshot; }
+    Ctrl+Print { screenshot-screen; }
+    Alt+Print  { screenshot-window; }
+
+    Mod+X       { spawn "systemctl" "suspend"; }
+    Mod+Shift+X { quit; }
+    Mod+Escape allow-inhibiting=false { spawn "swaylock" "-f"; }
+    Mod+Ctrl+Escape allow-inhibiting=false { toggle-keyboard-shortcuts-inhibit; }
+
+    Mod+Q { close-window; }
+    // kill -9 a la ventana enfocada
+    Mod+Shift+Q {
+        spawn "sh" "-c" "pid=$(niri msg --json focused-window | jq -e .pid) && [ -n \"$pid\" ] && kill -9 \"$pid\"";
+    }
+
+    Mod+M       { maximize-column; }  // monocle
+    Mod+T       { move-window-to-tiling; }
+    Mod+Shift+T { toggle-column-tabbed-display; }  // lo más parecido a pseudotiled
+    Mod+F       { toggle-window-floating; }
+    Mod+Shift+F { fullscreen-window; }
+    Mod+O repeat=false { toggle-overview; }
+
+    Mod+H { focus-column-left; }
+    Mod+J { focus-window-down; }
+    Mod+K { focus-window-up; }
+    Mod+L { focus-column-right; }
+    Mod+C       { focus-window-down-or-column-right; }
+    Mod+Shift+C { focus-window-up-or-column-left; }
+    Mod+Tab     { focus-window-previous; }
+    Mod+Grave   { focus-workspace-previous; }
+
+    Mod+Shift+H { move-column-left; }
+    Mod+Shift+J { move-window-down; }
+    Mod+Shift+K { move-window-up; }
+    Mod+Shift+L { move-column-right; }
+
+    Mod+Left        { focus-workspace-up; }
+    Mod+Right       { focus-workspace-down; }
+    Mod+Shift+Left  { move-column-to-workspace-up; }
+    Mod+Shift+Right { move-column-to-workspace-down; }
+
+    Mod+1 { focus-workspace 1; }
+    Mod+2 { focus-workspace 2; }
+    Mod+3 { focus-workspace 3; }
+    Mod+4 { focus-workspace 4; }
+    Mod+5 { focus-workspace 5; }
+    Mod+6 { focus-workspace 6; }
+    Mod+7 { focus-workspace 7; }
+    Mod+8 { focus-workspace 8; }
+    Mod+9 { focus-workspace 9; }
+    Mod+0 { focus-workspace 10; }
+    Mod+Shift+1 { move-column-to-workspace 1; }
+    Mod+Shift+2 { move-column-to-workspace 2; }
+    Mod+Shift+3 { move-column-to-workspace 3; }
+    Mod+Shift+4 { move-column-to-workspace 4; }
+    Mod+Shift+5 { move-column-to-workspace 5; }
+    Mod+Shift+6 { move-column-to-workspace 6; }
+    Mod+Shift+7 { move-column-to-workspace 7; }
+    Mod+Shift+8 { move-column-to-workspace 8; }
+    Mod+Shift+9 { move-column-to-workspace 9; }
+    Mod+Shift+0 { move-column-to-workspace 10; }
+
+    Mod+Alt+H { set-column-width "-5%"; }
+    Mod+Alt+L { set-column-width "+5%"; }
+    Mod+Alt+J { set-window-height "+5%"; }
+    Mod+Alt+K { set-window-height "-5%"; }
+    Mod+Minus { set-column-width "-10%"; }
+    Mod+Equal { set-column-width "+10%"; }
+    Mod+Shift+Equal { reset-window-height; }
+    Mod+R { switch-preset-column-width; }
+
+    Mod+Comma        { focus-monitor-previous; }
+    Mod+Period       { focus-monitor-next; }
+    Mod+Shift+Comma  { move-column-to-monitor-previous; }
+    Mod+Shift+Period { move-column-to-monitor-next; }
+
+    XF86AudioRaiseVolume allow-when-locked=true { spawn "wpctl" "set-volume" "-l" "1.0" "@DEFAULT_AUDIO_SINK@" "5%+"; }
+    XF86AudioLowerVolume allow-when-locked=true { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "5%-"; }
+    XF86AudioMute        allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SINK@" "toggle"; }
+    XF86AudioMicMute     allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SOURCE@" "toggle"; }
+    XF86MonBrightnessUp   allow-when-locked=true { spawn "brightnessctl" "set" "5%+"; }
+    XF86MonBrightnessDown allow-when-locked=true { spawn "brightnessctl" "set" "5%-"; }
+    XF86AudioPlay allow-when-locked=true { spawn "playerctl" "play-pause"; }
+    XF86AudioPause allow-when-locked=true { spawn "playerctl" "pause"; }
+    XF86AudioNext allow-when-locked=true { spawn "playerctl" "next"; }
+    XF86AudioPrev allow-when-locked=true { spawn "playerctl" "previous"; }
+
+    Mod+Shift+A { spawn "~/.local/bin/ai-assistant" "trigger"; }
+    Mod+Ctrl+A  { spawn "~/.local/bin/ai-assistant" "reset"; }
+}
